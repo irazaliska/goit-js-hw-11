@@ -1,5 +1,5 @@
 import './css/styles.css';
-import { PixabayApiService } from './pixabayApiService';
+import { PixabayAPI } from './pixabay-api';
 
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -10,7 +10,7 @@ const formEl = document.querySelector('.search-form');
 const galleryEl = document.querySelector('.gallery');
 const loadMoreBtnEl = document.querySelector('.load-more');
 
-const pixabay = new PixabayApiService();
+const pixabayApi = new PixabayAPI();
 const gallery = new SimpleLightbox('.gallery a');
 
 formEl.addEventListener('submit', handleFormSubmit);
@@ -22,9 +22,9 @@ async function handleFormSubmit(event) {
   event.preventDefault();
   resetGallery();
 
-  pixabay.searchQuery = event.currentTarget.elements.searchQuery.value.trim();
+  pixabayApi.searchQuery = event.currentTarget.elements.searchQuery.value.trim();
 
-  if (pixabay.searchQuery === '') {
+  if (pixabayApi.searchQuery === '') {
     Notify.warning(`Please enter a search query.`, 
     { position: 'center-center', cssAnimationStyle: 'from-top',
     });
@@ -32,7 +32,7 @@ async function handleFormSubmit(event) {
   }
 
   try {
-    const { hits: results, totalHits: total } = await pixabay.fetchGallery();
+    const { hits: results, totalHits: total } = await pixabayApi.fetchGallery();
     
     if (total === 0) {
       Notify.warning(`Sorry, there are no results for query. Please try again.`, 
@@ -41,7 +41,7 @@ async function handleFormSubmit(event) {
       return;
     }
 
-    if (results.length < 40) { 
+    if (results.length < pixabayApi.PER_PAGE) { 
       hideLoadMoreBtn();
     } else {
       showLoadMoreBtn();
@@ -59,15 +59,23 @@ async function handleFormSubmit(event) {
 
 async function handleLoadMore() {
   try {
-    const { hits: results } = await pixabay.fetchGallery();
+    const { hits: results } = await pixabayApi.fetchGallery();
     
-    if (results.length < 40) {
+    if (results.length < pixabayApi.PER_PAGE) {
       hideLoadMoreBtn();
       Notify.info("We're sorry, but you've reached the end of search results.");
     }
   
     renderGallery(results);
-  
+
+    const { height: cardHeight } =
+      galleryEl.firstElementChild.getBoundingClientRect();
+
+    window.scrollBy({
+      top: cardHeight * 2,
+      behavior: "smooth",
+    });  
+
   } catch (error) { 
       console.log(error);
       Notify.failure('Something went wrong. Please try again later.');
@@ -94,7 +102,7 @@ async function handleLoadMore() {
 
   function resetGallery() {
     galleryEl.innerHTML = '';
-    pixabay.resetPage();
+    pixabayApi.resetPage();
   }
 
   function hideLoadMoreBtn() {

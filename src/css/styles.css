@@ -32,8 +32,7 @@ p {
 .container {
   width: 1200px;
   margin: 0 auto;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding: 0 15;
 }
 
 .search-form {
@@ -55,7 +54,7 @@ p {
 .load-more {
   font-size: 14px;
   padding: 10px 20px;
-  background-color: #2ecc71;
+  background-color: #35e895;
   color: #303030;
   border: 1px solid #303030;
   border-radius: 4px;
@@ -78,7 +77,7 @@ p {
 .search-btn:focus,
 .load-more:hover,
 .load-more:focus {
-  background-color: #27ae60;
+  background-color: #32c682;
 }
 
 .gallery {
@@ -109,7 +108,7 @@ p {
 .info {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 .info-item {
