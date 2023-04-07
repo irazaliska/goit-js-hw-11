@@ -9,10 +9,14 @@ export class PixabayAPI {
     this.page = 1;
     this.PER_PAGE = 40;
   }
+
   async fetchGallery() {
+    
     try {
-      const { data } = await axios.get(`${this.#BASE_URL}?key=${this.#API_KEY}&q=${this.searchQuery}`, {
+      const { data } = await axios.get(`${this.#BASE_URL}`, {
         params: {
+          key: this.#API_KEY,
+          q: this.searchQuery,
           image_type: 'photo',
           orientation: 'horizontal',
           safesearch: true,
@@ -20,17 +24,11 @@ export class PixabayAPI {
           per_page: this.PER_PAGE,
         },
       }); 
-      this.page += 1;
       return data;
 
     } catch (error) {
       console.log(error);
-      throw new Error('Failed to fetch gallery');
     }
-  }
-    
-  resetPage() {
-    this.page = 1;
   }
 }
 

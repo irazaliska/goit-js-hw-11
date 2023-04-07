@@ -16,15 +16,15 @@ const gallery = new SimpleLightbox('.gallery a');
 formEl.addEventListener('submit', handleFormSubmit);
 loadMoreBtnEl.addEventListener('click', handleLoadMore);
 
-hideLoadMoreBtn();
 
 async function handleFormSubmit(event) {
   event.preventDefault();
+  hideLoadMoreBtn();
   resetGallery();
 
   pixabayApi.searchQuery = event.currentTarget.elements.searchQuery.value.trim();
 
-  if (pixabayApi.searchQuery === '') {
+  if (!pixabayApi.searchQuery) {
     Notify.warning(`Please enter a search query.`, 
     { position: 'center-center', cssAnimationStyle: 'from-top',
     });
@@ -33,15 +33,15 @@ async function handleFormSubmit(event) {
 
   try {
     const { hits: results, totalHits: total } = await pixabayApi.fetchGallery();
-    
-    if (total === 0) {
+
+    if (results.length === 0) {
       Notify.warning(`Sorry, there are no results for query. Please try again.`, 
       { position: 'center-center', cssAnimationStyle: 'from-top',
       });
       return;
     }
 
-    if (results.length < pixabayApi.PER_PAGE) { 
+    if (total < pixabayApi.page * pixabayApi.PER_PAGE) { 
       hideLoadMoreBtn();
     } else {
       showLoadMoreBtn();
@@ -58,10 +58,13 @@ async function handleFormSubmit(event) {
 }
 
 async function handleLoadMore() {
+  
+  pixabayApi.page += 1;
+
   try {
-    const { hits: results } = await pixabayApi.fetchGallery();
+    const { hits: results, totalHits: total } = await pixabayApi.fetchGallery();
     
-    if (results.length < pixabayApi.PER_PAGE) {
+    if (total < pixabayApi.page * pixabayApi.PER_PAGE) {
       hideLoadMoreBtn();
       Notify.info("We're sorry, but you've reached the end of search results.");
     }
@@ -102,7 +105,7 @@ async function handleLoadMore() {
 
   function resetGallery() {
     galleryEl.innerHTML = '';
-    pixabayApi.resetPage();
+    pixabayApi.page = 1;
   }
 
   function hideLoadMoreBtn() {
